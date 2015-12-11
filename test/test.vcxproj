@@ -155,7 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="_fun\add_test.cpp" />
+    <ClCompile Include="wincrypt\ecdh_key_basic.cpp" />
+    <ClCompile Include="_fun\add_basic.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

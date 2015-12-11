@@ -14,9 +14,13 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)wincrypt\debug.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)wincrypt\handle.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)wincrypt\wincrypt.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)_fun\add.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)wincrypt\wincrypt.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)_fun\add.cpp" />
   </ItemGroup>
 </Project>
