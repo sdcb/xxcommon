@@ -6,10 +6,10 @@ namespace wincrypt
 {
 	auto random(provider const & p,
 		void * buffer,
-		unsigned size) -> void
+		uint32_t size) -> void
 	{
 		check(BCryptGenRandom(p.get(),
-			static_cast<PUCHAR>(buffer),
+			static_cast<byte *>(buffer),
 			size,
 			0));
 	}
@@ -31,27 +31,27 @@ namespace wincrypt
 
 	auto combine(hash const & h,
 		void const * buffer,
-		unsigned size) -> void
+		uint32_t size) -> void
 	{
 		check(BCryptHashData(h.get(),
-			static_cast<PUCHAR>(const_cast<void *>(buffer)),
+			static_cast<byte *>(const_cast<void *>(buffer)),
 			size,
 			0));
 	}
 
 	auto get_value(hash const & h,
 		void * buffer,
-		unsigned size) -> void
+		uint32_t size) -> void
 	{
 		check(BCryptFinishHash(h.get(),
-			static_cast<PUCHAR>(buffer),
+			static_cast<byte *>(buffer),
 			size,
 			0));
 	}
 
 	auto create_key(provider const & p,
 		void const * secret,
-		unsigned size) -> key
+		uint32_t size) -> key
 	{
 		auto k = key{};
 
@@ -60,7 +60,7 @@ namespace wincrypt
 			k.get_address_of(),
 			nullptr,
 			0,
-			static_cast<PUCHAR>(const_cast<void *>(secret)),
+			static_cast<byte *>(const_cast<void *>(secret)),
 			size,
 			0));
 
@@ -68,7 +68,7 @@ namespace wincrypt
 	}
 
 	auto create_asymmetric_key(provider const & p,
-		unsigned keysize) -> key
+		uint32_t keysize) -> key
 	{
 		auto fk = key{};
 		check(BCryptGenerateKeyPair(p.get(),
@@ -80,9 +80,9 @@ namespace wincrypt
 	}
 
 	auto export_key(key const & fk,
-		wchar_t const * blobtype) -> std::vector<UCHAR>
+		wchar_t const * blobtype) -> std::vector<byte>
 	{
-		ULONG publickey_size;
+		unsigned long publickey_size;
 		check(BCryptExportKey(
 			fk.get(),
 			nullptr,
@@ -91,7 +91,7 @@ namespace wincrypt
 			0,
 			&publickey_size,
 			0));
-		auto value = std::vector<UCHAR>(publickey_size);
+		auto value = std::vector<byte>(publickey_size);
 		check(BCryptExportKey(
 			fk.get(),
 			nullptr,
@@ -107,7 +107,7 @@ namespace wincrypt
 	auto import_key(provider const & p,
 		wchar_t const * blobtype,
 		void const * blob,
-		unsigned blobsize) -> key
+		uint32_t blobsize) -> key
 	{
 		key k;
 		check(BCryptImportKeyPair(
@@ -123,7 +123,7 @@ namespace wincrypt
 
 	auto get_agreement(key const & fk,
 		key const & pk,
-		wchar_t const * hash_name) -> std::vector<UCHAR>
+		wchar_t const * hash_name) -> std::vector<byte>
 	{
 		BCRYPT_SECRET_HANDLE handle;
 		check(BCryptSecretAgreement(
@@ -137,9 +137,9 @@ namespace wincrypt
 		BCryptBuffer bcrypt_buffers[] =
 		{
 			{
-				hash_name_string.size() * 2 + 2,
+				static_cast<uint32_t>(hash_name_string.size() * 2 + 2),
 				KDF_HASH_ALGORITHM,
-			&hash_name_string[0],
+				&hash_name_string[0],
 			}
 		};
 		BCryptBufferDesc params =
@@ -149,7 +149,7 @@ namespace wincrypt
 			bcrypt_buffers,
 		};
 
-		ULONG derivedkey_size;
+		unsigned long derivedkey_size;
 		check(BCryptDeriveKey(
 			handle,
 			BCRYPT_KDF_HASH,
@@ -159,7 +159,7 @@ namespace wincrypt
 			&derivedkey_size,
 			0));
 
-		auto value = std::vector<UCHAR>(derivedkey_size);
+		auto value = std::vector<byte>(derivedkey_size);
 		check(BCryptDeriveKey(
 			handle,
 			BCRYPT_KDF_HASH,
@@ -175,12 +175,12 @@ namespace wincrypt
 
 	auto encrypt(key const & k,
 		void const * plaintext,
-		unsigned plaintext_size,
+		uint32_t plaintext_size,
 		void * ciphertext,
-		unsigned ciphertext_size,
-		unsigned flags) -> unsigned
+		uint32_t ciphertext_size,
+		int32_t flags) -> unsigned
 	{
-		auto bytesCopied = ULONG{};
+		auto bytesCopied = unsigned long{};
 
 		check(BCryptEncrypt(
 			k.get(),
@@ -199,12 +199,12 @@ namespace wincrypt
 
 	auto decrypt(key const & k,
 		void const * ciphertext,
-		unsigned ciphertext_size,
+		uint32_t ciphertext_size,
 		void * plaintext,
-		unsigned plaintext_size,
-		unsigned flags) -> unsigned
+		uint32_t plaintext_size,
+		uint32_t flags) -> unsigned
 	{
-		auto bytesCopied = ULONG{};
+		auto bytesCopied = unsigned long{};
 
 		check(BCryptDecrypt(
 			k.get(),
@@ -224,9 +224,9 @@ namespace wincrypt
 	auto decrypt(key const & k,
 		vector<byte> const & ciphertext,
 		vector<byte> & iv,
-		unsigned flags)->vector<byte>
+		uint32_t flags)->vector<byte>
 	{
-		auto bytesCopied = ULONG{};
+		auto bytesCopied = unsigned long{};
 
 		check(BCryptDecrypt(
 			k.get(),
@@ -257,13 +257,13 @@ namespace wincrypt
 		return plaintext;
 	}
 
-	auto create_shared_secret(std::string const & secret) -> std::vector<BYTE>
+	auto create_shared_secret(std::string const & secret) -> std::vector<byte>
 	{
 		auto p = open_provider(BCRYPT_SHA256_ALGORITHM);
 
 		auto h = create_hash(p);
 
-		combine(h, secret.c_str(), secret.size());
+		combine(h, secret.c_str(), static_cast<uint32_t>(secret.size()));
 
 		auto size = unsigned{};
 
@@ -284,11 +284,11 @@ namespace wincrypt
 
 		auto k = create_key(p,
 			&shared[0],
-			shared.size());
+			static_cast<uint32_t>(shared.size()));
 
 		auto size = encrypt(k,
 			plaintext.c_str(),
-			plaintext.size(),
+			static_cast<uint32_t>(plaintext.size()),
 			nullptr,
 			0,
 			BCRYPT_BLOCK_PADDING);
@@ -297,7 +297,7 @@ namespace wincrypt
 
 		encrypt(k,
 			plaintext.c_str(),
-			plaintext.size(),
+			static_cast<uint32_t>(plaintext.size()),
 			&ciphertext[0],
 			size,
 			BCRYPT_BLOCK_PADDING);
@@ -314,11 +314,11 @@ namespace wincrypt
 
 		auto k = create_key(p,
 			&shared[0],
-			shared.size());
+			static_cast<uint32_t>(shared.size()));
 
 		auto size = decrypt(k,
 			&ciphertext[0],
-			ciphertext.size(),
+			static_cast<uint32_t>(ciphertext.size()),
 			nullptr,
 			0,
 			BCRYPT_BLOCK_PADDING);
@@ -327,7 +327,7 @@ namespace wincrypt
 
 		decrypt(k,
 			&ciphertext[0],
-			ciphertext.size(),
+			static_cast<uint32_t>(ciphertext.size()),
 			&plaintext[0],
 			size,
 			BCRYPT_BLOCK_PADDING);

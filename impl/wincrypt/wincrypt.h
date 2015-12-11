@@ -55,6 +55,8 @@ namespace wincrypt
 	auto random(provider const & p,
 		T & buffer) -> void
 	{
+		static_assert(std::is_pod<T>::value, "T must be POD");
+
 		random(p,
 			&buffer,
 			sizeof(T));
@@ -92,7 +94,7 @@ namespace wincrypt
 
 		check(BCryptGetProperty(handle,
 			name,
-			reinterpret_cast<PUCHAR>(&value),
+			reinterpret_cast<byte *>(&value),
 			sizeof(T),
 			&bytesCopied,
 			0));
@@ -128,7 +130,7 @@ namespace wincrypt
 		unsigned keysize = 0)->key;
 
 	auto export_key(key const & fk,
-		wchar_t const * blobtype)->std::vector<UCHAR>;
+		wchar_t const * blobtype)->std::vector<byte>;
 
 	auto import_key(provider const & p,
 		wchar_t const * blobtype,
@@ -137,7 +139,7 @@ namespace wincrypt
 
 	auto get_agreement(key const & fk,
 		key const & pk,
-		wchar_t const * hash_name = BCRYPT_SHA256_ALGORITHM)->std::vector<UCHAR>;
+		wchar_t const * hash_name = BCRYPT_SHA256_ALGORITHM)->std::vector<byte>;
 
 	auto encrypt(key const & k,
 		void const * plaintext,
@@ -156,10 +158,10 @@ namespace wincrypt
 
 		check(BCryptEncrypt(
 			k.get(),
-			static_cast<PUCHAR>(const_cast<void*>((const void *)&plaintext[0])),
+			static_cast<byte *>(const_cast<void*>((const void *)&plaintext[0])),
 			static_cast<unsigned>(plaintext.size() * sizeof(String::value_type)),
 			nullptr,
-			static_cast<PUCHAR>(&iv[0]),
+			static_cast<byte *>(&iv[0]),
 			static_cast<unsigned>(iv.size() * sizeof(Sequence::value_type)),
 			nullptr,
 			0,
@@ -170,12 +172,12 @@ namespace wincrypt
 
 		check(BCryptEncrypt(
 			k.get(),
-			static_cast<PUCHAR>(const_cast<void*>((const void *)&plaintext[0])),
+			static_cast<byte *>(const_cast<void*>((const void *)&plaintext[0])),
 			static_cast<unsigned>(plaintext.size() * sizeof(String::value_type)),
 			nullptr,
-			static_cast<PUCHAR>(&iv[0]),
+			static_cast<byte *>(&iv[0]),
 			static_cast<unsigned>(iv.size() * sizeof(Sequence::value_type)),
-			static_cast<PUCHAR>(&ciphertext[0]),
+			static_cast<byte *>(&ciphertext[0]),
 			static_cast<unsigned>(ciphertext.size()),
 			&bytesCopied,
 			flags));
@@ -195,14 +197,14 @@ namespace wincrypt
 		std::vector<byte> & iv,
 		unsigned flags)->std::vector<byte>;
 
-	auto create_shared_secret(std::string const & secret)->std::vector<BYTE>;
+	auto create_shared_secret(std::string const & secret)->std::vector<byte>;
 
 	auto encrypt_message(wchar_t const * algorithm,
-		std::vector<BYTE> const & shared,
-		std::string const & plaintext)->std::vector<BYTE>;
+		std::vector<byte> const & shared,
+		std::string const & plaintext)->std::vector<byte>;
 
 
 	auto decrypt_message(wchar_t const * algorithm,
-		std::vector<BYTE> const & shared,
-		std::vector<BYTE> const & ciphertext)->std::string;
+		std::vector<byte> const & shared,
+		std::vector<byte> const & ciphertext)->std::string;
 }
