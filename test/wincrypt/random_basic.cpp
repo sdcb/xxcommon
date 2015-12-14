@@ -10,7 +10,7 @@ using namespace wincrypt;
 TEST_CLASS(Wincrypt_Random)
 {
 public:
-	TEST_METHOD(ArrayBuffer)
+	TEST_METHOD(ArrayVector)
 	{
 		auto p = open_provider(BCRYPT_RNG_ALGORITHM);
 
