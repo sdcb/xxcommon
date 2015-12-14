@@ -1,5 +1,6 @@
 #include <CppUnitTest.h>
 #include <wincrypt\wincrypt.h>
+#include <text64\text64.h>
 
 using namespace wincrypt;
 
@@ -12,5 +13,7 @@ public:
 		auto k = create_asymmetric_key(p);
 		auto pk = export_key(k, BCRYPT_ECCPUBLIC_BLOB);
 		auto sk = export_key(k, BCRYPT_ECCPRIVATE_BLOB);
+
+		
 	}
 };
