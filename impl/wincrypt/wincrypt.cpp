@@ -6,11 +6,11 @@ namespace wincrypt
 {
 	auto random(provider const & p,
 		void * buffer,
-		uint32_t size) -> void
+		size_t size) -> void
 	{
 		check(BCryptGenRandom(p.get(),
 			static_cast<byte *>(buffer),
-			size,
+			static_cast<ULONG>(size),
 			0));
 	}
 
@@ -31,27 +31,38 @@ namespace wincrypt
 
 	auto combine(hash const & h,
 		void const * buffer,
-		uint32_t size) -> void
+		size_t size) -> void
 	{
 		check(BCryptHashData(h.get(),
 			static_cast<byte *>(const_cast<void *>(buffer)),
-			size,
+			static_cast<ULONG>(size),
 			0));
 	}
 
-	auto get_value(hash const & h,
+	auto get_hashed(hash const & h,
 		void * buffer,
-		uint32_t size) -> void
+		size_t size) -> void
 	{
 		check(BCryptFinishHash(h.get(),
 			static_cast<byte *>(buffer),
-			size,
+			static_cast<ULONG>(size),
 			0));
+	}
+
+	auto get_hashed(hash const & h) -> std::vector<byte>
+	{
+		DWORD size;
+		get_property(h.get(), BCRYPT_HASH_LENGTH, size);
+
+		std::vector<byte> buffer(size);
+		get_hashed(h, &buffer[0], size);
+
+		return buffer;
 	}
 
 	auto create_key(provider const & p,
 		void const * secret,
-		uint32_t size) -> key
+		size_t size) -> key
 	{
 		auto k = key{};
 
@@ -61,19 +72,19 @@ namespace wincrypt
 			nullptr,
 			0,
 			static_cast<byte *>(const_cast<void *>(secret)),
-			size,
+			static_cast<ULONG>(size),
 			0));
 
 		return k;
 	}
 
 	auto create_asymmetric_key(provider const & p,
-		uint32_t keysize) -> key
+		size_t keysize) -> key
 	{
 		auto fk = key{};
 		check(BCryptGenerateKeyPair(p.get(),
 			fk.get_address_of(),
-			keysize,
+			static_cast<ULONG>(keysize),
 			0));
 		check(BCryptFinalizeKeyPair(fk.get(), 0));
 		return fk;
@@ -107,7 +118,7 @@ namespace wincrypt
 	auto import_key(provider const & p,
 		wchar_t const * blobtype,
 		void const * blob,
-		uint32_t blobsize) -> key
+		size_t blobsize) -> key
 	{
 		key k;
 		check(BCryptImportKeyPair(
@@ -116,7 +127,7 @@ namespace wincrypt
 			blobtype,
 			k.get_address_of(),
 			static_cast<PUCHAR>(const_cast<void *>(blob)),
-			blobsize,
+			static_cast<ULONG>(blobsize),
 			0));
 		return k;
 	}
@@ -175,22 +186,22 @@ namespace wincrypt
 
 	auto encrypt(key const & k,
 		void const * plaintext,
-		uint32_t plaintext_size,
+		size_t plaintext_size,
 		void * ciphertext,
-		uint32_t ciphertext_size,
-		int32_t flags) -> unsigned
+		size_t ciphertext_size,
+		unsigned long flags) -> unsigned
 	{
 		auto bytesCopied = unsigned long{};
 
 		check(BCryptEncrypt(
 			k.get(),
 			static_cast<PUCHAR>(const_cast<void *>(plaintext)),
-			plaintext_size,
+			static_cast<ULONG>(plaintext_size),
 			nullptr,
 			nullptr,
 			0,
 			static_cast<PUCHAR>(ciphertext),
-			ciphertext_size,
+			static_cast<ULONG>(ciphertext_size),
 			&bytesCopied,
 			flags));
 
@@ -199,22 +210,22 @@ namespace wincrypt
 
 	auto decrypt(key const & k,
 		void const * ciphertext,
-		uint32_t ciphertext_size,
+		size_t ciphertext_size,
 		void * plaintext,
-		uint32_t plaintext_size,
-		uint32_t flags) -> unsigned
+		size_t plaintext_size,
+		unsigned long flags) -> unsigned
 	{
 		auto bytesCopied = unsigned long{};
 
 		check(BCryptDecrypt(
 			k.get(),
 			static_cast<PUCHAR>(const_cast<void *>(ciphertext)),
-			ciphertext_size,
+			static_cast<ULONG>(ciphertext_size),
 			nullptr,
 			nullptr,
 			0,
 			static_cast<PUCHAR>(plaintext),
-			plaintext_size,
+			static_cast<ULONG>(plaintext_size),
 			&bytesCopied,
 			flags));
 
@@ -224,7 +235,7 @@ namespace wincrypt
 	auto decrypt(key const & k,
 		vector<byte> const & ciphertext,
 		vector<byte> & iv,
-		uint32_t flags)->vector<byte>
+		unsigned long flags)->vector<byte>
 	{
 		auto bytesCopied = unsigned long{};
 
@@ -271,7 +282,7 @@ namespace wincrypt
 
 		auto value = std::vector<BYTE>(size);
 
-		get_value(h, &value[0], size);
+		get_hashed(h, &value[0], size);
 
 		return value;
 	}

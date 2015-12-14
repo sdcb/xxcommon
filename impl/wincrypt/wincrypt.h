@@ -3,6 +3,7 @@
 #include "handle.h"
 #include <bcrypt.h>
 #include <vector>
+#include <string>
 #pragma comment(lib, "bcrypt")
 
 namespace wincrypt
@@ -24,13 +25,20 @@ namespace wincrypt
 
 	using provider = unique_handle<provider_traits>;
 
-	struct status_exception
+	struct status_exception : public std::exception
 	{
 		NTSTATUS code;
+		std::string _what;
 
 		status_exception(NTSTATUS result) :
-			code{ result }
+			code{ result }, 
+			_what{std::string("NTSTATUS = ") + std::to_string(code)}
 		{
+		}
+
+		char const* what() const
+		{
+			return _what.c_str();
 		}
 	};
 
@@ -40,12 +48,14 @@ namespace wincrypt
 
 	auto random(provider const & p,
 		void * buffer,
-		unsigned size) -> void;
+		size_t size) -> void;
 
-	template <typename T, unsigned Count>
+	template <typename T, size_t Count>
 	auto random(provider const & p,
 		T(&buffer)[Count]) -> void
 	{
+		static_assert(std::is_pod<T>::value, "T must be POD");
+
 		random(p,
 			buffer,
 			sizeof(T)* Count);
@@ -83,7 +93,7 @@ namespace wincrypt
 
 	auto combine(hash const & h,
 		void const * buffer,
-		unsigned size) -> void;
+		size_t size) -> void;
 
 	template <typename T>
 	auto get_property(BCRYPT_HANDLE handle,
@@ -100,9 +110,11 @@ namespace wincrypt
 			0));
 	}
 
-	auto get_value(hash const & h,
+	auto get_hashed(hash const & h,
 		void * buffer,
-		unsigned size) -> void;
+		size_t size) -> void;
+
+	auto get_hashed(hash const & h)->std::vector<byte>;
 
 	struct key_traits
 	{
@@ -124,10 +136,10 @@ namespace wincrypt
 
 	auto create_key(provider const & p,
 		void const * secret,
-		unsigned size)->key;
+		size_t size)->key;
 
 	auto create_asymmetric_key(provider const & p,
-		unsigned keysize = 0)->key;
+		size_t keysize = 0)->key;
 
 	auto export_key(key const & fk,
 		wchar_t const * blobtype)->std::vector<byte>;
@@ -135,7 +147,7 @@ namespace wincrypt
 	auto import_key(provider const & p,
 		wchar_t const * blobtype,
 		void const * blob,
-		unsigned blobsize)->key;
+		size_t blobsize)->key;
 
 	auto get_agreement(key const & fk,
 		key const & pk,
@@ -143,16 +155,16 @@ namespace wincrypt
 
 	auto encrypt(key const & k,
 		void const * plaintext,
-		unsigned plaintext_size,
+		size_t plaintext_size,
 		void * ciphertext,
-		unsigned ciphertext_size,
-		unsigned flags) -> unsigned;
+		size_t ciphertext_size,
+		unsigned long flags) -> unsigned;
 
 	template <typename String, typename Sequence>
 	auto encrypt(key const & k,
 		String const & plaintext,
 		Sequence iv,
-		unsigned flags) -> std::vector<byte>
+		unsigned long flags) -> std::vector<byte>
 	{
 		auto bytesCopied = ULONG{};
 
@@ -187,15 +199,15 @@ namespace wincrypt
 
 	auto decrypt(key const & k,
 		void const * ciphertext,
-		unsigned ciphertext_size,
+		size_t ciphertext_size,
 		void * plaintext,
-		unsigned plaintext_size,
-		unsigned flags) -> unsigned;
+		size_t plaintext_size,
+		unsigned long flags) -> unsigned;
 
 	auto decrypt(key const & k,
 		std::vector<byte> const & ciphertext,
 		std::vector<byte> & iv,
-		unsigned flags)->std::vector<byte>;
+		unsigned long flags)->std::vector<byte>;
 
 	auto create_shared_secret(std::string const & secret)->std::vector<byte>;
 

@@ -4,5 +4,6 @@
     <ClCompile Include="_fun\add_basic.cpp" />
     <ClCompile Include="wincrypt\ecdh_key_basic.cpp" />
     <ClCompile Include="wincrypt\random_basic.cpp" />
+    <ClCompile Include="wincrypt\hash_basic.cpp" />
   </ItemGroup>
 </Project>

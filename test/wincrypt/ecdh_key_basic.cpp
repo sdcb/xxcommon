@@ -1,8 +1,10 @@
 #include <CppUnitTest.h>
 #include <wincrypt\wincrypt.h>
 #include <text64\text64.h>
+#include <boost\format.hpp>
 
 using namespace wincrypt;
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 TEST_CLASS(Wincrypt_EcdhKeyBasic)
 {
@@ -14,6 +16,10 @@ public:
 		auto pk = export_key(k, BCRYPT_ECCPUBLIC_BLOB);
 		auto sk = export_key(k, BCRYPT_ECCPRIVATE_BLOB);
 
-		
+		Logger::WriteMessage(
+			(boost::format("PK: %2% %1%\n") % encode64(pk) % pk.size()).str().c_str());
+
+		Logger::WriteMessage(
+			(boost::format("SK: %2% %1%\n") % encode64(sk) % sk.size()).str().c_str());
 	}
 };
