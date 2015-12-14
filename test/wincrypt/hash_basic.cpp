@@ -12,12 +12,36 @@ TEST_CLASS(Wincrypt_Hash)
 {
 	TEST_METHOD(Md5)
 	{
-		auto p = wc::open_provider(BCRYPT_MD5_ALGORITHM);
+		CheckAlgorithm(BCRYPT_MD5_ALGORITHM, "b10a8db164e0754105b7a99be72e3fe5");
+	}
+
+	TEST_METHOD(Sha256)
+	{
+		CheckAlgorithm(BCRYPT_SHA256_ALGORITHM, "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e");
+	}
+
+	TEST_METHOD(Sha1)
+	{
+		CheckAlgorithm(BCRYPT_SHA1_ALGORITHM, "0a4d55a8d778e5022fab701977c5d840bbc486d0");
+	}
+
+	TEST_METHOD(Sha512)
+	{
+		CheckAlgorithm(BCRYPT_SHA512_ALGORITHM,
+			"2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f2"
+			"7e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b");
+	}
+
+
+
+	void CheckAlgorithm(wchar_t const * hashName, std::string expect)
+	{
+		auto p = wc::open_provider(hashName);
 		auto md5 = wc::create_hash(p);
-		
+
 		auto plain = "Hello World"s;
-		wc::combine(md5, 
-			static_cast<void *>(&plain[0]), 
+		wc::combine(md5,
+			static_cast<void *>(&plain[0]),
 			plain.size());
 
 		auto hashed = wc::get_hashed(md5);
@@ -25,6 +49,6 @@ TEST_CLASS(Wincrypt_Hash)
 		std::string hexed;
 		boost::algorithm::hex(hashed, std::back_inserter(hexed));
 
-		Assert::AreEqual("b10a8db164e0754105b7a99be72e3fe5", hexed.c_str(), true);
+		Assert::AreEqual(expect.c_str(), hexed.c_str(), true);
 	}
 };
