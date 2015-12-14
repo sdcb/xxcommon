@@ -116,6 +116,8 @@ namespace wincrypt
 
 	auto get_hashed(hash const & h)->std::vector<byte>;
 
+	auto hash_text(wchar_t const * algorithm, const std::string & text)->std::vector<byte>;
+
 	struct key_traits
 	{
 		using pointer = BCRYPT_KEY_HANDLE;

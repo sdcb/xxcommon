@@ -60,6 +60,18 @@ namespace wincrypt
 		return buffer;
 	}
 
+	auto hash_text(wchar_t const * algorithm, const std::string & text) -> std::vector<byte>
+	{
+		auto p = open_provider(algorithm);
+		auto md5 = create_hash(p);
+
+		combine(md5,
+			static_cast<const void *>(&text[0]),
+			text.size());
+
+		return get_hashed(md5);
+	}
+
 	auto create_key(provider const & p,
 		void const * secret,
 		size_t size) -> key

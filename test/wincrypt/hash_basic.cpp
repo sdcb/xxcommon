@@ -32,19 +32,9 @@ TEST_CLASS(Wincrypt_Hash)
 			"7e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b");
 	}
 
-
-
 	void CheckAlgorithm(wchar_t const * hashName, std::string expect)
 	{
-		auto p = wc::open_provider(hashName);
-		auto md5 = wc::create_hash(p);
-
-		auto plain = "Hello World"s;
-		wc::combine(md5,
-			static_cast<void *>(&plain[0]),
-			plain.size());
-
-		auto hashed = wc::get_hashed(md5);
+		auto hashed = wc::hash_text(hashName, "Hello World"s);
 
 		std::string hexed;
 		boost::algorithm::hex(hashed, std::back_inserter(hexed));
