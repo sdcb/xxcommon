@@ -25,20 +25,13 @@ namespace wincrypt
 
 	using provider = unique_handle<provider_traits>;
 
-	struct status_exception : public std::exception
+	struct status_exception
 	{
 		NTSTATUS code;
-		std::string _what;
 
 		status_exception(NTSTATUS result) :
-			code{ result }, 
-			_what{std::string("NTSTATUS = ") + std::to_string(code)}
+			code{ result }
 		{
-		}
-
-		char const* what() const
-		{
-			return _what.c_str();
 		}
 	};
 
@@ -49,6 +42,8 @@ namespace wincrypt
 	auto random(provider const & p,
 		void * buffer,
 		size_t size) -> void;
+
+	auto random_blob(size_t size) -> std::vector<byte>;
 
 	template <typename T, size_t Count>
 	auto random(provider const & p,
@@ -140,85 +135,30 @@ namespace wincrypt
 		void const * secret,
 		size_t size)->key;
 
+	auto create_key(provider const & p,
+		std::vector<byte> const & secret)->key;
+
 	auto create_asymmetric_key(provider const & p,
 		size_t keysize = 0)->key;
 
 	auto export_key(key const & fk,
 		wchar_t const * blobtype)->std::vector<byte>;
-
+	
 	auto import_key(provider const & p,
 		wchar_t const * blobtype,
-		void const * blob,
-		size_t blobsize)->key;
+		const std::vector<byte> & keyBlob)->key;
 
 	auto get_agreement(key const & fk,
 		key const & pk,
 		wchar_t const * hash_name = BCRYPT_SHA256_ALGORITHM)->std::vector<byte>;
-
+	
 	auto encrypt(key const & k,
-		void const * plaintext,
-		size_t plaintext_size,
-		void * ciphertext,
-		size_t ciphertext_size,
-		unsigned long flags) -> unsigned;
-
-	template <typename String, typename Sequence>
-	auto encrypt(key const & k,
-		String const & plaintext,
-		Sequence iv,
-		unsigned long flags) -> std::vector<byte>
-	{
-		auto bytesCopied = ULONG{};
-
-		check(BCryptEncrypt(
-			k.get(),
-			static_cast<byte *>(const_cast<void*>((const void *)&plaintext[0])),
-			static_cast<unsigned>(plaintext.size() * sizeof(String::value_type)),
-			nullptr,
-			static_cast<byte *>(&iv[0]),
-			static_cast<unsigned>(iv.size() * sizeof(Sequence::value_type)),
-			nullptr,
-			0,
-			&bytesCopied,
-			flags));
-
-		auto ciphertext = vector<byte>(bytesCopied);
-
-		check(BCryptEncrypt(
-			k.get(),
-			static_cast<byte *>(const_cast<void*>((const void *)&plaintext[0])),
-			static_cast<unsigned>(plaintext.size() * sizeof(String::value_type)),
-			nullptr,
-			static_cast<byte *>(&iv[0]),
-			static_cast<unsigned>(iv.size() * sizeof(Sequence::value_type)),
-			static_cast<byte *>(&ciphertext[0]),
-			static_cast<unsigned>(ciphertext.size()),
-			&bytesCopied,
-			flags));
-
-		return ciphertext;
-	}
-
-	auto decrypt(key const & k,
-		void const * ciphertext,
-		size_t ciphertext_size,
-		void * plaintext,
-		size_t plaintext_size,
-		unsigned long flags) -> unsigned;
+		const std::vector<byte> & plaintext,
+		std::vector<byte> iv,
+		unsigned long flags = BCRYPT_BLOCK_PADDING)->std::vector<byte>;
 
 	auto decrypt(key const & k,
 		std::vector<byte> const & ciphertext,
-		std::vector<byte> & iv,
-		unsigned long flags)->std::vector<byte>;
-
-	auto create_shared_secret(std::string const & secret)->std::vector<byte>;
-
-	auto encrypt_message(wchar_t const * algorithm,
-		std::vector<byte> const & shared,
-		std::string const & plaintext)->std::vector<byte>;
-
-
-	auto decrypt_message(wchar_t const * algorithm,
-		std::vector<byte> const & shared,
-		std::vector<byte> const & ciphertext)->std::string;
+		std::vector<byte> iv,
+		unsigned long flags = BCRYPT_BLOCK_PADDING)->std::vector<byte>;
 }
