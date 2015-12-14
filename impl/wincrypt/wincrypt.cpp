@@ -80,6 +80,22 @@ namespace wincrypt
 		return get_hashed(hashType);
 	}
 
+	auto get_property(BCRYPT_HANDLE handle,
+		wchar_t const * name) -> size_t
+	{
+		auto bytesCopied = ULONG{};
+		auto value = size_t{};
+
+		check(BCryptGetProperty(handle,
+			name,
+			reinterpret_cast<byte *>(&value),
+			sizeof(size_t),
+			&bytesCopied,
+			0));
+
+		return value;
+	}
+
 	auto create_key(provider const & p,
 		void const * secret,
 		size_t size) -> key

@@ -105,6 +105,9 @@ namespace wincrypt
 			0));
 	}
 
+	auto get_property(BCRYPT_HANDLE handle,
+		wchar_t const * name)->size_t;
+
 	auto get_hashed(hash const & h,
 		void * buffer,
 		size_t size) -> void;

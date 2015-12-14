@@ -4,7 +4,7 @@
     <ClCompile Include="_fun\add_basic.cpp" />
     <ClCompile Include="wincrypt\ecdh_key_basic.cpp" />
     <ClCompile Include="wincrypt\hash_basic.cpp" />
-    <ClCompile Include="wincrypt\aes_basic.cpp" />
     <ClCompile Include="wincrypt\random_test.cpp" />
+    <ClCompile Include="wincrypt\symmetric_basic.cpp" />
   </ItemGroup>
 </Project>
