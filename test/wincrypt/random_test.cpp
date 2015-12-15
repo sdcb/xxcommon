@@ -25,7 +25,7 @@ public:
 
 		std::vector<byte> buffer;
 		buffer.resize(16);
-		random(p, &buffer[0], static_cast<uint32_t>(buffer.size()));
+		random(p, &buffer[0], buffer.size());
 		Logger::WriteMessage(encode64(buffer).c_str());
 	}
 
@@ -39,13 +39,16 @@ public:
 
 		Assert::AreNotEqual(a, b);
 		Assert::AreNotEqual(a, c);
+		Logger::WriteMessage(std::to_string(a).c_str());
+		Logger::WriteMessage(std::to_string(b).c_str());
+		Logger::WriteMessage(std::to_string(c).c_str());
 	}
 
 	TEST_METHOD(GenerateBlob)
 	{
-		auto blob1 = random_blob(32);
-		auto blob2 = random_blob(32);
+		auto blob1 = encode64(random_blob(32));
+		auto blob2 = encode64(random_blob(32));
 
-		Assert::AreNotEqual(encode64(blob1), encode64(blob2));
+		Assert::AreNotEqual(blob1, blob2);
 	}
 };
