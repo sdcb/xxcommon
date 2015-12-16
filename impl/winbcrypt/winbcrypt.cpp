@@ -1,8 +1,8 @@
-#include "wincrypt.h"
+#include "winbcrypt.h"
 
 using namespace std;
 
-namespace wincrypt
+namespace winbcrypt
 {
 	auto random(provider const & p,
 		void * buffer,

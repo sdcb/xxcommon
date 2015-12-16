@@ -1,13 +1,13 @@
 #include <CppUnitTest.h>
-#include <wincrypt\wincrypt.h>
+#include <winbcrypt\winbcrypt.h>
 #include <array>
 #include <sstream>
 #include <text64\text64.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace wincrypt;
+using namespace winbcrypt;
 
-TEST_CLASS(Wincrypt_Random)
+TEST_CLASS(Winbcrypt_Random)
 {
 public:
 	TEST_METHOD(Array)

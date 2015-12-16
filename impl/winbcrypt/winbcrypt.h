@@ -6,7 +6,7 @@
 #include <string>
 #pragma comment(lib, "bcrypt")
 
-namespace wincrypt
+namespace winbcrypt
 {
 	struct provider_traits
 	{

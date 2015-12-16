@@ -155,10 +155,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="wincrypt\symmetric_basic.cpp" />
-    <ClCompile Include="wincrypt\ecdh_key_basic.cpp" />
-    <ClCompile Include="wincrypt\hash_basic.cpp" />
-    <ClCompile Include="wincrypt\random_test.cpp" />
+    <ClCompile Include="winbcrypt\symmetric_basic.cpp" />
+    <ClCompile Include="winbcrypt\ecdh_key_basic.cpp" />
+    <ClCompile Include="winbcrypt\hash_basic.cpp" />
+    <ClCompile Include="winbcrypt\random_test.cpp" />
     <ClCompile Include="_fun\add_basic.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

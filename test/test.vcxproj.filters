@@ -2,9 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="_fun\add_basic.cpp" />
-    <ClCompile Include="wincrypt\ecdh_key_basic.cpp" />
-    <ClCompile Include="wincrypt\hash_basic.cpp" />
-    <ClCompile Include="wincrypt\random_test.cpp" />
-    <ClCompile Include="wincrypt\symmetric_basic.cpp" />
+    <ClCompile Include="winbcrypt\ecdh_key_basic.cpp" />
+    <ClCompile Include="winbcrypt\hash_basic.cpp" />
+    <ClCompile Include="winbcrypt\random_test.cpp" />
+    <ClCompile Include="winbcrypt\symmetric_basic.cpp" />
   </ItemGroup>
 </Project>

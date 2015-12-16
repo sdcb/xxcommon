@@ -4,7 +4,7 @@
 #include <windows.h>
 #include "debug.h"
 
-namespace wincrypt
+namespace winbcrypt
 {
 	template <typename Traits>
 	class unique_handle

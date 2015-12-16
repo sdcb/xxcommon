@@ -1,12 +1,12 @@
 #include <CppUnitTest.h>
-#include <wincrypt\wincrypt.h>
+#include <winbcrypt\winbcrypt.h>
 #include <text64\text64.h>
 #include <boost\format.hpp>
 
-using namespace wincrypt;
+using namespace winbcrypt;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-TEST_CLASS(Wincrypt_EcdhKeyBasic)
+TEST_CLASS(Winbcrypt_EcdhKeyBasic)
 {
 public:
 	TEST_METHOD(Basic)
