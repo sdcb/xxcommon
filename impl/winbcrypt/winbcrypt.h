@@ -123,9 +123,10 @@ namespace winbcrypt
 
 	auto create_pbkdf2_key(
 		std::vector<byte> const & secret, 
-		std::vector<byte> iv, 
-		size_t length, 
-		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM)->std::vector<byte>;
+		size_t length,
+		std::vector<byte> salt = random_blob(16), 
+		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM, 
+		size_t iterCount = 10000)->std::vector<byte>;
 
 	auto create_key(provider const & p,
 		void const * secret,

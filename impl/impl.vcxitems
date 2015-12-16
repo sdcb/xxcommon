@@ -21,6 +21,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)_fun\add.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)text_util\buffer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)text_util\text64.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)winbcrypt\winbcrypt.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)_fun\add.cpp" />

@@ -6,34 +6,35 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::string_literals;
 namespace wc = winbcrypt;
+namespace tu = text_util;
 
 TEST_CLASS(Winbcrypt_Symmetric)
 {
 	TEST_METHOD(Aes256)
 	{
-		process(BCRYPT_AES_ALGORITHM, BCRYPT_SHA256_ALGORITHM);
+		process(BCRYPT_AES_ALGORITHM, 256);
 	}
 
 	TEST_METHOD(Aes128)
 	{
-		process(BCRYPT_AES_ALGORITHM, BCRYPT_MD5_ALGORITHM);
+		process(BCRYPT_AES_ALGORITHM, 128);
 	}
 
 	TEST_METHOD(Des)
 	{
-		process(BCRYPT_DES_ALGORITHM, BCRYPT_MD5_ALGORITHM);
+		process(BCRYPT_DES_ALGORITHM, 64);
 	}
 
 	TEST_METHOD(Des3)
 	{
-		process(BCRYPT_3DES_ALGORITHM, BCRYPT_SHA256_ALGORITHM);
+		process(BCRYPT_3DES_ALGORITHM, 192);
 	}
 
-	void process(wchar_t const * algorithm, wchar_t const * hashType)
+	void process(wchar_t const * algorithm, size_t keybits)
 	{
 		auto p = wc::open_provider(algorithm);
-		auto text = "Hello World"s;
-		auto key = wc::create_key(p, wc::hash_text(hashType, "Hello World"));
+		auto keyBuffer = wc::create_pbkdf2_key(tu::to_buffer("Hello World"s), keybits / 8);
+		auto key = wc::create_key(p, keyBuffer);
 		
 		auto ivSize = wc::get_size_property(p.get(), BCRYPT_BLOCK_LENGTH);
 		auto iv = wc::random_blob(ivSize);

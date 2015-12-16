@@ -16,7 +16,10 @@ namespace winbcrypt
 	auto random_blob(size_t size)->std::vector<byte>
 	{
 		vector<byte> buffer(size);
-		random(&buffer[0], buffer.size());
+		if (size > 0)
+		{
+			random(buffer.data(), buffer.size());
+		}
 		return buffer;
 	}
 
@@ -60,7 +63,7 @@ namespace winbcrypt
 		auto size = get_size_property(h.get(), BCRYPT_HASH_LENGTH);
 
 		std::vector<byte> buffer(size);
-		get_hashed(h, &buffer[0], size);
+		get_hashed(h, buffer.data(), size);
 
 		return buffer;
 	}
@@ -71,7 +74,7 @@ namespace winbcrypt
 		auto hashType = create_hash(p);
 
 		combine(hashType,
-			static_cast<const void *>(&text[0]),
+			static_cast<const void *>(text.data()),
 			text.size());
 
 		return get_hashed(hashType);
@@ -108,7 +111,7 @@ namespace winbcrypt
 
 		check(BCryptGetProperty(handle,
 			name,
-			reinterpret_cast<byte *>(&value[0]),
+			reinterpret_cast<byte *>(const_cast<wchar_t *>(value.data())),
 			static_cast<ULONG>(value.size() * sizeof(std::wstring::value_type)),
 			&bytesCopied,
 			0));
@@ -132,7 +135,7 @@ namespace winbcrypt
 			{
 				static_cast<ULONG>(salt.size()),
 				KDF_SALT,
-				static_cast<PBYTE>(&salt[0]),
+				static_cast<PBYTE>(salt.data()),
 			},
 			{
 				static_cast<ULONG>(sizeof(iterCount)),
@@ -163,13 +166,14 @@ namespace winbcrypt
 
 	auto create_pbkdf2_key(
 		std::vector<byte> const & secret, 
-		std::vector<byte> iv, 
-		size_t length, 
-		std::wstring && hashAlgorithm)->std::vector<byte>
+		size_t length,
+		std::vector<byte> salt, 
+		std::wstring && hashAlgorithm, 
+		size_t iterCount)->std::vector<byte>
 	{
 		auto p = open_provider(BCRYPT_PBKDF2_ALGORITHM);
 		auto k = create_key(p, secret);
-		return pbkdf2_derivation_key(k, length, iv, std::move(hashAlgorithm));
+		return pbkdf2_derivation_key(k, length, salt, std::move(hashAlgorithm), iterCount);
 	}
 
 	auto create_key(provider const & p,
