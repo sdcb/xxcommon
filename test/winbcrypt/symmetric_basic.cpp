@@ -9,11 +9,6 @@ namespace wc = winbcrypt;
 
 TEST_CLASS(Winbcrypt_Symmetric)
 {
-	TEST_METHOD(Aes512)
-	{
-		process(BCRYPT_AES_ALGORITHM, BCRYPT_SHA512_ALGORITHM);
-	}
-
 	TEST_METHOD(Aes256)
 	{
 		process(BCRYPT_AES_ALGORITHM, BCRYPT_SHA256_ALGORITHM);
@@ -26,7 +21,7 @@ TEST_CLASS(Winbcrypt_Symmetric)
 
 	TEST_METHOD(Des)
 	{
-		process(BCRYPT_DES_ALGORITHM, BCRYPT_SHA256_ALGORITHM);
+		process(BCRYPT_DES_ALGORITHM, BCRYPT_MD5_ALGORITHM);
 	}
 
 	TEST_METHOD(Des3)
@@ -42,7 +37,10 @@ TEST_CLASS(Winbcrypt_Symmetric)
 		auto iv = wc::random_blob(ivSize);
 		auto plain = "Hello World"s;
 
-		auto prop = wc::get_str_property(p.get(), BCRYPT_CHAINING_MODE);
+		auto kl = wc::get_size_property(key.get(), BCRYPT_KEY_LENGTH);
+		Logger::WriteMessage(algorithm);
+		Logger::WriteMessage(L":");
+		Logger::WriteMessage(std::to_wstring(kl).c_str());
 
 		auto cipher = wc::encrypt(key, std::vector<byte>(&plain[0], &plain[0] + plain.size()), iv);
 		auto decrypted = wc::decrypt(key, cipher, iv);

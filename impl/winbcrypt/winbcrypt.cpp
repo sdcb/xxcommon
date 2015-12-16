@@ -131,6 +131,15 @@ namespace winbcrypt
 			static_cast<ULONG>(size),
 			0));
 
+#if _DEBUG
+		auto keysize = get_size_property(k.get(), BCRYPT_KEY_LENGTH);
+		ASSERT(keysize == size * 8);
+		if (keysize != size * 8) 
+		{
+			throw std::exception{ "keysize != size" };
+		}
+#endif
+
 		return k;
 	}
 
