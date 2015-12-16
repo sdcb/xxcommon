@@ -1,6 +1,6 @@
 #include <CppUnitTest.h>
 #include <winbcrypt\winbcrypt.h>
-#include <text64\text64.h>
+#include <text_util\text_util.h>
 #include <array>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -32,7 +32,9 @@ TEST_CLASS(Winbcrypt_Symmetric)
 	void process(wchar_t const * algorithm, wchar_t const * hashType)
 	{
 		auto p = wc::open_provider(algorithm);
+		auto text = "Hello World"s;
 		auto key = wc::create_key(p, wc::hash_text(hashType, "Hello World"));
+		
 		auto ivSize = wc::get_size_property(p.get(), BCRYPT_BLOCK_LENGTH);
 		auto iv = wc::random_blob(ivSize);
 		auto plain = "Hello World"s;

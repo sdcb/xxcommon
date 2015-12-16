@@ -113,6 +113,19 @@ namespace winbcrypt
 
 	using key = unique_handle<key_traits>;
 
+	auto pbkdf2_derivation_key(
+		key const & keyIn, 
+		size_t keyLength, 
+		std::vector<byte> salt, 
+		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM, 
+		size_t iterCount = 10000)
+		->std::vector<byte>;
+
+	auto create_pbkdf2_key(
+		std::vector<byte> const & secret, 
+		std::vector<byte> iv, 
+		size_t length, 
+		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM)->std::vector<byte>;
 
 	auto create_key(provider const & p,
 		void const * secret,

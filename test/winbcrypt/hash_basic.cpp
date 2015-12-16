@@ -1,11 +1,12 @@
 #include <CppUnitTest.h>
 #include <winbcrypt\winbcrypt.h>
 #include <string>
-#include <text64\text64.h>
+#include "text_util\text_util.h"
 #include <boost\algorithm\hex.hpp>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::string_literals;
+using namespace text_util;
 namespace wc = winbcrypt;
 
 TEST_CLASS(Winbcrypt_Hash)

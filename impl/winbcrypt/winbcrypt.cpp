@@ -7,7 +7,7 @@ namespace winbcrypt
 	auto random(void * buffer, size_t size) -> void
 	{
 		check(BCryptGenRandom(
-			nullptr, 
+			nullptr,
 			static_cast<byte *>(buffer),
 			static_cast<ULONG>(size),
 			BCRYPT_USE_SYSTEM_PREFERRED_RNG));
@@ -99,7 +99,7 @@ namespace winbcrypt
 		auto bytesCopied = ULONG{};
 		check(BCryptGetProperty(handle,
 			name,
-			nullptr, 
+			nullptr,
 			0,
 			&bytesCopied,
 			0));
@@ -114,6 +114,62 @@ namespace winbcrypt
 			0));
 
 		return value;
+	}
+
+	auto pbkdf2_derivation_key(
+		key const & keyIn, 
+		size_t keyLength, 
+		std::vector<byte> salt, 
+		std::wstring && hashAlgorithm, 
+		size_t iterCount) -> std::vector<byte>
+	{
+		BCryptBuffer parameterBuffers[] = {
+			{
+				static_cast<ULONG>(hashAlgorithm.size() * sizeof(std::wstring::value_type)),
+				KDF_HASH_ALGORITHM,
+				&hashAlgorithm[0],
+			},
+			{
+				static_cast<ULONG>(salt.size()),
+				KDF_SALT,
+				static_cast<PBYTE>(&salt[0]),
+			},
+			{
+				static_cast<ULONG>(sizeof(iterCount)),
+				KDF_ITERATION_COUNT,
+				reinterpret_cast<PBYTE>(&iterCount),
+			}
+		};
+
+		BCryptBufferDesc parameters = {
+			BCRYPTBUFFER_VERSION,
+			3,
+			parameterBuffers
+		};
+
+		std::vector<byte> keyBuffer(keyLength);
+
+		ULONG bytesCopied;
+		check(BCryptKeyDerivation(
+			keyIn.get(),
+			&parameters,
+			static_cast<PUCHAR>(&keyBuffer[0]),
+			static_cast<ULONG>(keyBuffer.size()),
+			&bytesCopied,
+			0));
+
+		return keyBuffer;
+	}
+
+	auto create_pbkdf2_key(
+		std::vector<byte> const & secret, 
+		std::vector<byte> iv, 
+		size_t length, 
+		std::wstring && hashAlgorithm)->std::vector<byte>
+	{
+		auto p = open_provider(BCRYPT_PBKDF2_ALGORITHM);
+		auto k = create_key(p, secret);
+		return pbkdf2_derivation_key(k, length, iv, std::move(hashAlgorithm));
 	}
 
 	auto create_key(provider const & p,
@@ -134,7 +190,7 @@ namespace winbcrypt
 #if _DEBUG
 		auto keysize = get_size_property(k.get(), BCRYPT_KEY_LENGTH);
 		ASSERT(keysize == size * 8);
-		if (keysize != size * 8) 
+		if (keysize != size * 8)
 		{
 			throw std::exception{ "keysize != size" };
 		}
@@ -199,7 +255,7 @@ namespace winbcrypt
 			static_cast<PUCHAR>(const_cast<byte *>(&keyBlob[0])),
 			static_cast<ULONG>(keyBlob.size()),
 			0));
-		
+
 		return k;
 	}
 
@@ -313,16 +369,16 @@ namespace winbcrypt
 		auto plaintext = vector<byte>(bytesCopied);
 
 		check(BCryptDecrypt(
-				k.get(),
-				static_cast<PUCHAR>(const_cast<PUCHAR>(&ciphertext[0])),
-				static_cast<ULONG>(ciphertext.size()),
-				nullptr,
-				static_cast<PUCHAR>(const_cast<PUCHAR>(&iv[0])),
-				static_cast<ULONG>(iv.size()),
-				static_cast<PUCHAR>(const_cast<PUCHAR>(&plaintext[0])),
-				static_cast<ULONG>(plaintext.size()),
-				&bytesCopied,
-				flags));
+			k.get(),
+			static_cast<PUCHAR>(const_cast<PUCHAR>(&ciphertext[0])),
+			static_cast<ULONG>(ciphertext.size()),
+			nullptr,
+			static_cast<PUCHAR>(const_cast<PUCHAR>(&iv[0])),
+			static_cast<ULONG>(iv.size()),
+			static_cast<PUCHAR>(const_cast<PUCHAR>(&plaintext[0])),
+			static_cast<ULONG>(plaintext.size()),
+			&bytesCopied,
+			flags));
 
 		plaintext.resize(bytesCopied);
 		return plaintext;

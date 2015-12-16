@@ -2,10 +2,11 @@
 #include <winbcrypt\winbcrypt.h>
 #include <array>
 #include <sstream>
-#include <text64\text64.h>
+#include <text_util\text_util.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace winbcrypt;
+using namespace text_util;
 
 TEST_CLASS(Winbcrypt_Random)
 {
@@ -14,7 +15,7 @@ public:
 	{
 		std::array<byte, 16> buffer;
 		random(buffer);
-		Logger::WriteMessage((encode64(buffer) + "\n").c_str());
+		Logger::WriteMessage((encode64(to_buffer(buffer)) + "\n").c_str());
 	}
 
 	TEST_METHOD(Vector)

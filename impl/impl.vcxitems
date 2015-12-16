@@ -14,14 +14,14 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)text64\text64.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)text_util\text_util.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)winbcrypt\debug.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)winbcrypt\handle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)winbcrypt\winbcrypt.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)_fun\add.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)text64\text64.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)text_util\text64.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)winbcrypt\winbcrypt.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)_fun\add.cpp" />
   </ItemGroup>
