@@ -1,6 +1,7 @@
 #include <CppUnitTest.h>
 #include <winbcrypt\winbcrypt.h>
 #include <text64\text64.h>
+#include <array>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::string_literals;
@@ -37,9 +38,11 @@ TEST_CLASS(Winbcrypt_Symmetric)
 	{
 		auto p = wc::open_provider(algorithm);
 		auto key = wc::create_key(p, wc::hash_text(hashType, "Hello World"));
-		auto ivSize = wc::get_property(p.get(), BCRYPT_BLOCK_LENGTH);
+		auto ivSize = wc::get_size_property(p.get(), BCRYPT_BLOCK_LENGTH);
 		auto iv = wc::random_blob(ivSize);
 		auto plain = "Hello World"s;
+
+		auto prop = wc::get_str_property(p.get(), BCRYPT_CHAINING_MODE);
 
 		auto cipher = wc::encrypt(key, std::vector<byte>(&plain[0], &plain[0] + plain.size()), iv);
 		auto decrypted = wc::decrypt(key, cipher, iv);

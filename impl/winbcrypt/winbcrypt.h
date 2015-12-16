@@ -39,32 +39,24 @@ namespace winbcrypt
 
 	auto open_provider(wchar_t const * algorithm)->provider;
 
-	auto random(provider const & p,
-		void * buffer,
-		size_t size) -> void;
+	auto random(void * buffer, size_t size) -> void;
 
 	auto random_blob(size_t size) -> std::vector<byte>;
 
 	template <typename T, size_t Count>
-	auto random(provider const & p,
-		T(&buffer)[Count]) -> void
+	auto random(T(&buffer)[Count]) -> void
 	{
 		static_assert(std::is_pod<T>::value, "T must be POD");
 
-		random(p,
-			buffer,
-			sizeof(T)* Count);
+		random(buffer, sizeof(T)* Count);
 	}
 
 	template <typename T>
-	auto random(provider const & p,
-		T & buffer) -> void
+	auto random(T & buffer) -> void
 	{
 		static_assert(std::is_pod<T>::value, "T must be POD");
 
-		random(p,
-			&buffer,
-			sizeof(T));
+		random(&buffer, sizeof(T));
 	}
 
 	struct hash_traits
@@ -90,23 +82,11 @@ namespace winbcrypt
 		void const * buffer,
 		size_t size) -> void;
 
-	template <typename T>
-	auto get_property(BCRYPT_HANDLE handle,
-		wchar_t const * name,
-		T & value) -> void
-	{
-		auto bytesCopied = ULONG{};
-
-		check(BCryptGetProperty(handle,
-			name,
-			reinterpret_cast<byte *>(&value),
-			sizeof(T),
-			&bytesCopied,
-			0));
-	}
-
-	auto get_property(BCRYPT_HANDLE handle,
+	auto get_size_property(BCRYPT_HANDLE handle,
 		wchar_t const * name)->size_t;
+
+	auto get_str_property(BCRYPT_HANDLE handle,
+		wchar_t const * name)->std::wstring;
 
 	auto get_hashed(hash const & h,
 		void * buffer,

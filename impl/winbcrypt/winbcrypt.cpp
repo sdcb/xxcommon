@@ -4,21 +4,19 @@ using namespace std;
 
 namespace winbcrypt
 {
-	auto random(provider const & p,
-		void * buffer,
-		size_t size) -> void
+	auto random(void * buffer, size_t size) -> void
 	{
-		check(BCryptGenRandom(p.get(),
+		check(BCryptGenRandom(
+			nullptr, 
 			static_cast<byte *>(buffer),
 			static_cast<ULONG>(size),
-			0));
+			BCRYPT_USE_SYSTEM_PREFERRED_RNG));
 	}
 
 	auto random_blob(size_t size)->std::vector<byte>
 	{
 		vector<byte> buffer(size);
-		auto p = open_provider(BCRYPT_RNG_ALGORITHM);
-		random(p, &buffer[0], buffer.size());
+		random(&buffer[0], buffer.size());
 		return buffer;
 	}
 
@@ -59,8 +57,7 @@ namespace winbcrypt
 
 	auto get_hashed(hash const & h) -> std::vector<byte>
 	{
-		DWORD size;
-		get_property(h.get(), BCRYPT_HASH_LENGTH, size);
+		auto size = get_size_property(h.get(), BCRYPT_HASH_LENGTH);
 
 		std::vector<byte> buffer(size);
 		get_hashed(h, &buffer[0], size);
@@ -80,7 +77,7 @@ namespace winbcrypt
 		return get_hashed(hashType);
 	}
 
-	auto get_property(BCRYPT_HANDLE handle,
+	auto get_size_property(BCRYPT_HANDLE handle,
 		wchar_t const * name) -> size_t
 	{
 		auto bytesCopied = ULONG{};
@@ -90,6 +87,29 @@ namespace winbcrypt
 			name,
 			reinterpret_cast<byte *>(&value),
 			sizeof(size_t),
+			&bytesCopied,
+			0));
+
+		return value;
+	}
+
+	auto get_str_property(BCRYPT_HANDLE handle,
+		wchar_t const * name) -> std::wstring
+	{
+		auto bytesCopied = ULONG{};
+		check(BCryptGetProperty(handle,
+			name,
+			nullptr, 
+			0,
+			&bytesCopied,
+			0));
+
+		auto value = std::wstring(bytesCopied / 2 + 1, L'\0');
+
+		check(BCryptGetProperty(handle,
+			name,
+			reinterpret_cast<byte *>(&value[0]),
+			static_cast<ULONG>(value.size() * sizeof(std::wstring::value_type)),
 			&bytesCopied,
 			0));
 
