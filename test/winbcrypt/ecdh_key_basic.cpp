@@ -44,6 +44,26 @@ public:
 		Assert::AreEqual(hash64, hash_64);
 	}
 
+	TEST_METHOD(Encrypt)
+	{
+		auto p = wc::open_provider(BCRYPT_RSA_ALGORITHM);
+		auto k = wc::create_asymmetric_key(p, 1024);
+		auto pks = wc::export_key(k, BCRYPT_PUBLIC_KEY_BLOB);
+		auto sks = wc::export_key(k, BCRYPT_PRIVATE_KEY_BLOB);
+		auto pk = wc::import_key(p, BCRYPT_PUBLIC_KEY_BLOB, pks);
+		auto sk = wc::import_key(p, BCRYPT_PRIVATE_KEY_BLOB, sks);
+
+		auto ivSize = wc::get_size_property(pk.get(), BCRYPT_BLOCK_LENGTH);
+		auto iv = wc::random_blob(ivSize);
+
+		auto plainText = "Hello World12345"s;
+		auto cipher = wc::encrypt(pk, tu::to_buffer(plainText), iv, BCRYPT_);
+		auto decrypted = wc::decrypt(sk, cipher, iv);
+
+		auto decryptedText = std::string(decrypted.cbegin(), decrypted.cend());
+		Assert::AreEqual(decryptedText, plainText);
+	}
+
 	void log(std::vector<byte> blob, std::string && prefix = ""s)
 	{
 		Logger::WriteMessage((boost::format("%1%(%2%): %3%\n")
