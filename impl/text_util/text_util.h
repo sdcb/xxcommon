@@ -10,6 +10,8 @@ namespace text_util {
 
 	std::vector<unsigned char> to_buffer(std::string && text);
 
+	std::vector<unsigned char> to_buffer(std::string const & text);
+
 	template <size_t Size>
 	std::vector<unsigned char> to_buffer(std::array<unsigned char, Size> const & buffer)
 	{

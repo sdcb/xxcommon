@@ -8,4 +8,11 @@ namespace text_util
 		buffer.assign(text.cbegin(), text.cend());
 		return buffer;
 	}
+
+	std::vector<unsigned char> to_buffer(std::string const & text)
+	{
+		std::vector<unsigned char> buffer(text.size());
+		buffer.assign(text.cbegin(), text.cend());
+		return buffer;
+	}
 }

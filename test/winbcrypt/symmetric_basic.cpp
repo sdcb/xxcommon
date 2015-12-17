@@ -38,14 +38,9 @@ TEST_CLASS(Winbcrypt_Symmetric)
 		
 		auto ivSize = wc::get_size_property(p.get(), BCRYPT_BLOCK_LENGTH);
 		auto iv = wc::random_blob(ivSize);
+
 		auto plain = "Hello World"s;
-
-		auto kl = wc::get_size_property(key.get(), BCRYPT_KEY_LENGTH);
-		Logger::WriteMessage(algorithm);
-		Logger::WriteMessage(L":");
-		Logger::WriteMessage(std::to_wstring(kl).c_str());
-
-		auto cipher = wc::encrypt(key, std::vector<byte>(&plain[0], &plain[0] + plain.size()), iv);
+		auto cipher = wc::encrypt(key, tu::to_buffer(plain), iv);
 		auto decrypted = wc::decrypt(key, cipher, iv);
 		auto decryptedText = std::string(decrypted.begin(), decrypted.end());
 
