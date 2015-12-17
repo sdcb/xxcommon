@@ -4,7 +4,6 @@
 #include <bcrypt.h>
 #include <vector>
 #include <string>
-#pragma comment(lib, "bcrypt")
 
 namespace winbcrypt
 {
@@ -118,15 +117,15 @@ namespace winbcrypt
 		size_t keyLength, 
 		std::vector<byte> salt, 
 		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM, 
-		size_t iterCount = 10000)
+		uint64_t iterCount = 10000)
 		->std::vector<byte>;
 
 	auto create_pbkdf2_key(
 		std::vector<byte> const & secret, 
 		size_t length,
-		std::vector<byte> salt = random_blob(16), 
+		std::vector<byte> salt = random_blob(32), 
 		std::wstring && hashAlgorithm = BCRYPT_SHA256_ALGORITHM, 
-		size_t iterCount = 10000)->std::vector<byte>;
+		uint64_t iterCount = 10000)->std::vector<byte>;
 
 	auto create_key(provider const & p,
 		void const * secret,

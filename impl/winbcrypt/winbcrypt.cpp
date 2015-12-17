@@ -1,4 +1,5 @@
 #include "winbcrypt.h"
+#pragma comment(lib, "bcrypt")
 
 using namespace std;
 
@@ -124,7 +125,7 @@ namespace winbcrypt
 		size_t keyLength, 
 		std::vector<byte> salt, 
 		std::wstring && hashAlgorithm, 
-		size_t iterCount) -> std::vector<byte>
+		uint64_t iterCount) -> std::vector<byte>
 	{
 		BCryptBuffer parameterBuffers[] = {
 			{
@@ -169,7 +170,7 @@ namespace winbcrypt
 		size_t length,
 		std::vector<byte> salt, 
 		std::wstring && hashAlgorithm, 
-		size_t iterCount)->std::vector<byte>
+		uint64_t iterCount)->std::vector<byte>
 	{
 		auto p = open_provider(BCRYPT_PBKDF2_ALGORITHM);
 		auto k = create_key(p, secret);
