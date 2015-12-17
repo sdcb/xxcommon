@@ -46,4 +46,23 @@ TEST_CLASS(Winbcrypt_Symmetric)
 
 		Assert::AreEqual(decryptedText, plain);
 	}
+
+	TEST_METHOD(Aes256_Decrypt)
+	{
+		const auto iv64 = "W7CLuikA6srjcQ0dc3GyBQ=="s;
+		const auto key64 = "pZGm1Av0IEBKARczz7exkNYsZb8LzaMrV7J32a2fFG4="s;
+		const auto encrypted64 = "ggoCaTSejdi0IU4X02GpzA=="s;
+
+		auto iv = tu::decode64(iv64);
+		auto keys = tu::decode64(key64);
+		auto encrypted = tu::decode64(encrypted64);
+
+		auto p = wc::open_provider(BCRYPT_AES_ALGORITHM);
+		auto key = wc::create_key(p, keys);
+		
+		auto decrypted = wc::decrypt(key, encrypted, iv);
+		auto decryptedText = std::string(decrypted.begin(), decrypted.end());
+
+		Assert::AreEqual(decryptedText, "Hello World"s);
+	}
 };
